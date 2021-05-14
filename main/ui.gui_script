@@ -1,0 +1,18 @@
+function init(self)
+	self.score = 0      
+	local n = gui.get_node("win")
+	gui.set_enabled(n, false)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("add_score") then               
+		self.score = self.score + message.score             
+		local scorenode = gui.get_node("score")          
+		if(self.score >= 100) then
+			local n = gui.get_node("win")
+		gui.set_enabled(n, true)
+	end
+	
+		gui.set_text(scorenode, "SCORE: " .. self.score)    
+	end
+end

@@ -1,0 +1,56 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+
+	self.moving = false
+	self.firing = false
+
+	self.input = vmath.vector3()
+	self.dir = vmath.vector3(0, 1, 0)
+	self.speed = 50 
+end
+
+function final(self)                                -- [7]
+	msg.post(".", "release_input_focus")            -- [8]
+end
+
+function update(self, dt)
+	if self.moving then
+		local pos = go.get_position('player')
+		pos = pos + self.dir * self.speed * dt
+		go.set_position(pos)
+	end
+
+	if self.firing then
+		local pos = go.get_position("player")
+		local angle = math.atan2(self.dir.y, self.dir.x)
+		local rot = vmath.quat_rotation_z(angle)
+		factory.create("#rocketfactory", pos ,rot , {dir = self.dir})
+	end
+
+	self.input.x = 0
+	self.input.y = 0
+
+	self.moving = false
+	self.firing = false
+
+
+end
+
+function on_input(self, action_id, action)          -- [14]
+	if action_id == hash("up") then
+		self.input.y = 1                            -- [15]
+	elseif action_id == hash("down") then
+		self.input.y = -1
+	elseif action_id == hash("left") then
+		self.input.x = -1
+	elseif action_id == hash("right") then
+		self.input.x = 1
+	elseif action_id == hash("fire") and action.pressed then
+		self.firing = true
+	end
+
+	if vmath.length(self.input) > 0 then
+		self.moving = true                          -- [16]
+		self.dir = vmath.normalize(self.input)      -- [17]
+	end
+end
